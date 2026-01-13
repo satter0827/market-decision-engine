@@ -1,0 +1,153 @@
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "market-decision-engine"
+version = "0.1.0"
+description = "EOD swing-trading decision support engine (JP/US) that outputs executable Decision Packs."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "satter0827" }]
+keywords = ["trading", "quant", "finance", "eod", "swing", "decision-engine"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: MIT License",
+  "Typing :: Typed",
+]
+
+# 実行に必要な依存（最小構成）
+dependencies = [
+  "pydantic>=2.7",
+  "pydantic-settings>=2.3",
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "yfinance>=0.2.40",
+  "python-dateutil>=2.9",
+  "rich>=13.7",
+  "typer>=0.12",
+]
+
+[project.optional-dependencies]
+# 開発用
+dev = [
+  "black>=24.8.0",
+  "isort>=5.13.2",
+  "ruff>=0.6.8",
+  "mypy>=1.11.2",
+  "pytest>=8.3.2",
+  "pytest-cov>=5.0.0",
+  "types-python-dateutil>=2.9.0.20240316",
+  "pandas-stubs>=2.2.2.240807",
+]
+# ドキュメント
+docs = [
+  "sphinx>=8.0.2",
+  "myst-parser>=3.0.1",
+  "sphinx-rtd-theme>=2.0.0",
+]
+# LLM 層（必要時のみ導入）
+llm = [
+  # OpenAI 等は運用方針により変える想定。まずは空で良いが、将来追加する。
+]
+
+[project.scripts]
+mde = "market_decision_engine.cli.main:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/market_decision_engine"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "README.md", "LICENSE", "pyproject.toml", "documents", "SCHEDULE.md"]
+
+# -------------------------
+# Formatting / Lint / Type
+# -------------------------
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+src_paths = ["src", "tests"]
+known_first_party = ["market_decision_engine"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+# --- Lint (schema互換のためトップレベルに寄せる) ---
+select = [
+  "E", "F", "W",
+  "I",
+  "B",
+  "UP",
+  "SIM",
+  "C4",
+  "N",
+  "ANN",
+  "D",
+  "RUF",
+]
+ignore = [
+  "D100", "D104", "D107",
+  "D203", "D213",
+]
+unfixable = ["F401"]
+
+# pydocstyle の設定
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.ruff.per-file-ignores]
+"tests/**.py" = ["D", "ANN"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+packages = ["market_decision_engine"]
+strict = true
+warn_unreachable = true
+warn_return_any = true
+no_implicit_optional = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_any_unimported = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+pretty = true
+
+# 外部ライブラリの型事情により、必要に応じて緩める（最小限）
+[[tool.mypy.overrides]]
+module = [
+  "yfinance.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q --strict-markers --disable-warnings --maxfail=1"
+testpaths = ["tests"]
+xfail_strict = true
+
+[tool.coverage.run]
+branch = true
+source = ["market_decision_engine"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 75
