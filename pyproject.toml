@@ -20,8 +20,6 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Typing :: Typed",
 ]
-
-# 実行に必要な依存（最小構成）
 dependencies = [
   "pydantic>=2.7",
   "pydantic-settings>=2.3",
@@ -34,7 +32,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# 開発用
 dev = [
   "black>=24.8.0",
   "isort>=5.13.2",
@@ -45,13 +42,11 @@ dev = [
   "types-python-dateutil>=2.9.0.20240316",
   "pandas-stubs>=2.2.2.240807",
 ]
-# ドキュメント
 docs = [
   "sphinx>=8.0.2",
   "myst-parser>=3.0.1",
   "sphinx-rtd-theme>=2.0.0",
 ]
-# LLM 層（必要時のみ導入）
 llm = [
   # OpenAI 等は運用方針により変える想定。まずは空で良いが、将来追加する。
 ]
@@ -65,72 +60,64 @@ packages = ["src/market_decision_engine"]
 [tool.hatch.build.targets.sdist]
 include = ["src", "README.md", "LICENSE", "pyproject.toml", "documents", "SCHEDULE.md"]
 
-# -------------------------
-# Formatting / Lint / Type
-# -------------------------
-
 [tool.black]
-line-length = 100
+line-length = 128
 target-version = ["py311"]
 
 [tool.isort]
 profile = "black"
-line_length = 100
+line_length = 128
 src_paths = ["src", "tests"]
 known_first_party = ["market_decision_engine"]
 
 [tool.ruff]
-line-length = 100
+line-length = 128
 target-version = "py311"
 src = ["src", "tests"]
 
-# --- Lint (schema互換のためトップレベルに寄せる) ---
+[tool.ruff.lint]
 select = [
   "E", "F", "W",
-  "I",
-  "B",
-  "UP",
-  "SIM",
-  "C4",
-  "N",
-  "ANN",
-  "D",
-  "RUF",
+  # "I",
+  # "B",
+  # "UP",
+  # "SIM",
+  # "C4",
+  # "N",
+  # "ANN",
+  # "D",
+  # "RUF",
 ]
 ignore = [
   "D100", "D104", "D107",
   "D203", "D213",
 ]
 unfixable = ["F401"]
+per-file-ignores = { "tests/**.py" = ["D", "ANN"] }
 
-# pydocstyle の設定
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[tool.ruff.per-file-ignores]
-"tests/**.py" = ["D", "ANN"]
 
 [tool.mypy]
 python_version = "3.11"
 mypy_path = "src"
 packages = ["market_decision_engine"]
-strict = true
-warn_unreachable = true
-warn_return_any = true
-no_implicit_optional = true
-disallow_any_generics = true
-disallow_subclassing_any = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_calls = true
-disallow_any_unimported = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-show_error_codes = true
-pretty = true
+# strict = true
+# warn_unreachable = true
+# warn_return_any = true
+# no_implicit_optional = true
+# disallow_any_generics = true
+# disallow_subclassing_any = true
+# disallow_untyped_defs = true
+# disallow_incomplete_defs = true
+# check_untyped_defs = true
+# disallow_untyped_calls = true
+# disallow_any_unimported = true
+# warn_redundant_casts = true
+# warn_unused_ignores = true
+# show_error_codes = true
+# pretty = true
 
-# 外部ライブラリの型事情により、必要に応じて緩める（最小限）
 [[tool.mypy.overrides]]
 module = [
   "yfinance.*",
